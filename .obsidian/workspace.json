@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "Abstract"
             }
+          },
+          {
+            "id": "acb93022c8c57e21",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.8.9"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.8.9"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -168,7 +181,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "230579afbdedbb50",
+  "active": "acb93022c8c57e21",
   "lastOpenFiles": [
     "Abstract.pdf",
     "Abstract.md"
