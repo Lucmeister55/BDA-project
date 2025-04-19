@@ -1,3 +1,5 @@
 *.env
 __pycache__
 /notebooks/data/pbmc10k/filtered_feature_bc_matrix
+/notebooks/data/pbmc10k/raw_feature_bc_matrix
+/notebooks/cache

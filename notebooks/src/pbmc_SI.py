@@ -391,57 +391,6 @@ def run_acor(
         archive_history['best_centers'] = np.array(archive_history['best_centers'])
     return best_cost, best_centers, labels, archive_history
 
-def animate_sa(data_tsne, pos_history, centers, interval=200, figsize=(8,6), margin=5):
-    """
-    Create an animation of PSO particle movement over iterations.
-
-    Parameters:
-    - data_tsne (np.array): The t-SNE 2D data with shape (n_cells, 2).
-    - pos_history (array-like): Particle history of shape (n_iters, n_particles, 2).
-    - centers (np.array): Final cluster centers with shape (n_clusters, 2).
-    - interval (int): Time between frames in milliseconds. Default is 100.
-    - figsize (tuple): Figure size for the plot. Default is (8, 6).
-    - margin (float): Extra space to add/subtract to the data limits. Default is 5.
-
-    Returns:
-    - ani (FuncAnimation): A Matplotlib animation object.
-    """
-    # Set axis limits based on the data range and margin
-    x_min, x_max = np.min(data_tsne[:, 0]) - margin, np.max(data_tsne[:, 0]) + margin
-    y_min, y_max = np.min(data_tsne[:, 1]) - margin, np.max(data_tsne[:, 1]) + margin
-    
-    # Create a new figure and axes
-    fig, ax = plt.subplots(figsize=figsize)
-    ax.set_xlim(x_min, x_max)
-    ax.set_ylim(y_min, y_max)
-    ax.set_xlabel('x-coordinate')
-    ax.set_ylabel('y-coordinate')
-    ax.set_title('Particle Movement over Iterations')
-    
-    # Create a scatter plot for the particles.
-    # pso_history should be of shape (n_iters, n_particles, 2).
-    scat = ax.scatter([], [], c='blue', label='Particles', s=50)
-    
-    # Plot the final cluster centers as static markers.
-    # pso_centers should be of shape (n_clusters, 2).
-    ax.scatter(centers[:, 0], centers[:, 1],
-               c='red', marker='x', s=100, label='Final Cluster Centers')
-    
-    ax.legend()
-    
-    # Define the update function for the animation
-    def update(frame):
-        # Update particle positions for the current frame
-        positions = pos_history[frame]
-        scat.set_offsets(positions)
-        ax.set_title(f'Iteration: {frame + 1}')
-        return scat,
-    
-    # Create the animation object
-    ani = animation.FuncAnimation(fig, update, frames=len(pos_history),
-                                  interval=interval, blit=True, repeat=False)
-    return ani
-
 def animate_best_center_history(
     data_tsne,
     pos_history,
