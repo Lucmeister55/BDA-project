@@ -67,33 +67,42 @@ def calculate_clustering_scores(data, labels):
 # -------------------------------
 # 2. PSO Implementation (using pyswarms)
 # -------------------------------
-def run_pso(data_tsne, n_clusters, iters=100, n_particles=30,
+def run_pso(data_tsne, n_clusters, iters=100, n_particles=30, options={'c1': 1.5, 'c2': 1.5, 'w': 0.7}, 
             record_history=False):
     """
-    Run PSO to cluster the t-SNE data and optionally record the movement
+    Run PSO to cluster the data and optionally record the movement
     of the particles and the best centers at each iteration.
     
     Parameters:
-        data_tsne (np.array): The t-SNE 2D data.
+        data_tsne (np.array): The input data, typically a 2D array of shape (n_samples, n_features).
+                              For t-SNE data, n_features should be 2.
         n_clusters (int): Number of clusters to form.
-        iters (int): Number of iterations.
+        iters (int): Number of iterations for the PSO algorithm.
         n_particles (int): Number of particles in the swarm.
+        options (dict): PSO hyperparameters, including:
+                        - 'c1': Cognitive parameter (influence of personal best).
+                        - 'c2': Social parameter (influence of global best).
+                        - 'w': Inertia weight (influence of previous velocity).
         record_history (bool): Whether to record the positions of particles
-            and the best center at each iteration.
+                               and the best centers at each iteration.
     
     Returns:
-        best_cost (float): Best cost (objective value).
-        best_centers (np.array): Best cluster centers found.
-        labels (np.array): Cluster labels for data points.
-        pos_history (list or None): If record_history is True, a list where
-            each element is an array of particle positions
-            (shape: [n_particles, n_clusters*2]) at each iteration;
-            otherwise, None.
-        cost_history (list or None): If record_history is True, a list of the
-            best cost at each iteration; otherwise, None.
-        best_centers_history (np.array or None): If record_history is True,
-            an array of shape (iters, n_clusters, 2) giving the best-fit
-            centroid positions at each iteration; otherwise, None.
+        best_cost (float): The best cost (objective value) achieved by the swarm.
+        best_centers (np.array): The best cluster centers found, with shape (n_clusters, n_features).
+                                 Each row represents the coordinates of a cluster center.
+        labels (np.array): Cluster labels for each data point, with shape (n_samples,).
+                           Each element is an integer representing the assigned cluster.
+        pos_history (list or None): If record_history is True, a list of particle positions at each iteration.
+                                    Each element is a 2D array of shape (n_particles, n_clusters * n_features),
+                                    where each row represents a particle's flattened cluster center positions.
+                                    If record_history is False, this is None.
+        cost_history (list or None): If record_history is True, a list of the best cost at each iteration.
+                                     Each element is a float representing the best cost at that iteration.
+                                     If record_history is False, this is None.
+        best_centers_history (np.array or None): If record_history is True, an array of the best cluster centers
+                                                 at each iteration, with shape (iters, n_clusters, n_features).
+                                                 Each element is a 2D array representing the cluster centers
+                                                 at a specific iteration. If record_history is False, this is None.
     """
     n_features = data_tsne.shape[1]  # should be 2 for t-SNE
     dimensions = n_clusters * n_features
@@ -103,7 +112,6 @@ def run_pso(data_tsne, n_clusters, iters=100, n_particles=30,
     ub = np.max(data_tsne) * np.ones(dimensions)
     bounds = (lb, ub)
 
-    options = {'c1': 1.5, 'c2': 1.5, 'w': 0.7}
     optimizer = ps.single.GlobalBestPSO(
         n_particles=n_particles,
         dimensions=dimensions,
@@ -117,7 +125,7 @@ def run_pso(data_tsne, n_clusters, iters=100, n_particles=30,
         iters=iters,
         data=data_tsne,
         n_clusters=n_clusters,
-        verbose=True
+        verbose=False
     )
 
     # fetch raw histories if requested
@@ -392,7 +400,7 @@ def run_acor(
     return best_cost, best_centers, labels, archive_history
 
 def animate_best_center_history(
-    data_tsne,
+    data,
     pos_history,
     best_centers_history,
     center_idx,
@@ -430,14 +438,14 @@ def animate_best_center_history(
     i0, i1 = 2 * center_idx, 2 * center_idx + 2
 
     # Set plot limits
-    x_min, x_max = data_tsne[:, 0].min() - margin, data_tsne[:, 0].max() + margin
-    y_min, y_max = data_tsne[:, 1].min() - margin, data_tsne[:, 1].max() + margin
+    x_min, x_max = data[:, 0].min() - margin, data[:, 0].max() + margin
+    y_min, y_max = data[:, 1].min() - margin, data[:, 1].max() + margin
 
     fig, ax = plt.subplots(figsize=figsize)
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(y_min, y_max)
-    ax.set_xlabel('t-SNE 1')
-    ax.set_ylabel('t-SNE 2')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
     title = ax.set_title(f'Cluster center #{center_idx} search')
 
     # Scatter of all particle positions for this center
@@ -474,7 +482,7 @@ def animate_best_center_history(
 
 
 def plot_clusters(data, labels, title, centers=None,
-                  x_label="t-SNE 1", y_label="t-SNE 2", 
+                  x_label="x", y_label="y", 
                   cmap='viridis', alpha=0.7, 
                   center_color='red', center_marker='X', center_size=200):
     """
@@ -498,6 +506,10 @@ def plot_clusters(data, labels, title, centers=None,
     Returns:
         None. Displays the plot.
     """
+    # Convert DataFrame to NumPy array if necessary
+    if isinstance(data, pd.DataFrame):
+        data = data.to_numpy()
+
     plt.scatter(data[:, 0], data[:, 1], c=labels, cmap=cmap, alpha=alpha)
     if centers is not None:
         plt.scatter(centers[:, 0], centers[:, 1], c=center_color, s=center_size, marker=center_marker)
