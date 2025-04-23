@@ -10,6 +10,8 @@ from sklearn.metrics import (
     davies_bouldin_score,
     calinski_harabasz_score,
     pairwise_distances,
+    accuracy_score,
+    adjusted_rand_score,
 )
 from scipy.spatial.distance import cdist
 from matplotlib.animation import FuncAnimation
@@ -35,6 +37,41 @@ def clustering_objective_function(particles, data, n_clusters):
         min_distances = np.min(distances, axis=1)
         cost[i] = np.sum(min_distances**2)
     return cost
+
+
+def evaluate_labels(data, true_labels, predicted_labels):
+    """
+    Clustering evaluation given ground truth.
+
+    Parameters:
+        data (array-like of shape (n_samples, n_features)):
+            The input data points.
+        true_labels (array-like of shape (n_samples,)):
+            Ground Truth cluster labels for each data point.
+        predicted_labels (array-like of shape (n_samples,)):
+            Predicted cluster labels for each data point.
+
+    Returns:
+        acc_score (float):
+            Accuracy score (only meaningful when predicted labels are directly comparable to true labels, higher = better).
+        rand_score (float):
+            Adjusted Rand Index (measures similarity between two clusterings, higher = better).
+        sil_score (float):
+            Mean Silhouette Coefficient (−1 to 1, higher = better).
+    """
+    # Accuracy: only valid if label values match (e.g., supervised context or after label alignment)
+    acc_score = round(accuracy_score(true_labels, predicted_labels), 3)
+
+    # Adjusted Rand Index: measures similarity between two clusterings ignoring permutations
+    rand_score = round(adjusted_rand_score(true_labels, predicted_labels), 3)
+
+    # Silhouette Score: requires at least 2 clusters and more than 1 sample per cluster
+    try:
+        sil_score = round(silhouette_score(data, predicted_labels), 3)
+    except ValueError:
+        sil_score = float("nan")  # In case silhouette score cannot be computed
+
+    return acc_score, rand_score, sil_score
 
 
 def calculate_clustering_scores(data, labels):
