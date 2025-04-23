@@ -9,11 +9,12 @@ from sklearn.metrics import (
     silhouette_score,
     davies_bouldin_score,
     calinski_harabasz_score,
-    pairwise_distances
+    pairwise_distances,
 )
 from scipy.spatial.distance import cdist
 from matplotlib.animation import FuncAnimation
 from pyswarms.utils.plotters.formatters import Mesher, Designer
+
 
 # -------------------------------
 # 1. Define the clustering objective function
@@ -27,24 +28,25 @@ def clustering_objective_function(particles, data, n_clusters):
     n_particles = particles.shape[0]
     n_features = data.shape[1]
     cost = np.zeros(n_particles)
-    
+
     for i in range(n_particles):
         centers = particles[i].reshape((n_clusters, n_features))
-        distances = pairwise_distances(data, centers, metric='euclidean')
+        distances = pairwise_distances(data, centers, metric="euclidean")
         min_distances = np.min(distances, axis=1)
         cost[i] = np.sum(min_distances**2)
     return cost
 
+
 def calculate_clustering_scores(data, labels):
     """
     Calculate clustering scores for the given data and labels.
-    
+
     Parameters:
         data (array-like of shape (n_samples, n_features)):
             The input data points.
         labels (array-like of shape (n_samples,)):
             Cluster labels for each data point.
-    
+
     Returns:
         sil_score (float):
             Mean Silhouette Coefficient (−1 to 1, higher = better).
@@ -55,24 +57,31 @@ def calculate_clustering_scores(data, labels):
     """
     # Silhouette: cohesion vs. separation
     sil_score = round(silhouette_score(data, labels), 3)
-    
+
     # Davies–Bouldin: average cluster “worst-case” similarity
     db_score = round(davies_bouldin_score(data, labels), 3)
-    
+
     # Calinski–Harabasz: variance ratio criterion
     ch_score = round(calinski_harabasz_score(data, labels), 1)
-    
+
     return sil_score, db_score, ch_score
+
 
 # -------------------------------
 # 2. PSO Implementation (using pyswarms)
 # -------------------------------
-def run_pso(data_tsne, n_clusters, iters=100, n_particles=30, options={'c1': 1.5, 'c2': 1.5, 'w': 0.7}, 
-            record_history=False):
+def run_pso(
+    data_tsne,
+    n_clusters,
+    iters=100,
+    n_particles=30,
+    options={"c1": 1.5, "c2": 1.5, "w": 0.7},
+    record_history=False,
+):
     """
     Run PSO to cluster the data and optionally record the movement
     of the particles and the best centers at each iteration.
-    
+
     Parameters:
         data_tsne (np.array): The input data, typically a 2D array of shape (n_samples, n_features).
                               For t-SNE data, n_features should be 2.
@@ -85,7 +94,7 @@ def run_pso(data_tsne, n_clusters, iters=100, n_particles=30, options={'c1': 1.5
                         - 'w': Inertia weight (influence of previous velocity).
         record_history (bool): Whether to record the positions of particles
                                and the best centers at each iteration.
-    
+
     Returns:
         best_cost (float): The best cost (objective value) achieved by the swarm.
         best_centers (np.array): The best cluster centers found, with shape (n_clusters, n_features).
@@ -113,10 +122,7 @@ def run_pso(data_tsne, n_clusters, iters=100, n_particles=30, options={'c1': 1.5
     bounds = (lb, ub)
 
     optimizer = ps.single.GlobalBestPSO(
-        n_particles=n_particles,
-        dimensions=dimensions,
-        options=options,
-        bounds=bounds
+        n_particles=n_particles, dimensions=dimensions, options=options, bounds=bounds
     )
 
     # always turn on verbose so that rep.hook() is called each iter
@@ -125,7 +131,7 @@ def run_pso(data_tsne, n_clusters, iters=100, n_particles=30, options={'c1': 1.5
         iters=iters,
         data=data_tsne,
         n_clusters=n_clusters,
-        verbose=False
+        verbose=False,
     )
 
     # fetch raw histories if requested
@@ -136,7 +142,7 @@ def run_pso(data_tsne, n_clusters, iters=100, n_particles=30, options={'c1': 1.5
     best_centers = best_pos.reshape((n_clusters, n_features))
 
     # assign labels for the final solution
-    distances = cdist(data_tsne, best_centers, metric='euclidean')
+    distances = cdist(data_tsne, best_centers, metric="euclidean")
     labels = np.argmin(distances, axis=1)
 
     # now build best_centers_history by re-evaluating each snapshot
@@ -145,33 +151,27 @@ def run_pso(data_tsne, n_clusters, iters=100, n_particles=30, options={'c1': 1.5
         for snapshot in pos_history:
             # snapshot: shape (n_particles, dimensions)
             # evaluate all particles at this iter
-            costs = clustering_objective_function(
-                snapshot, data_tsne, n_clusters
-            )
+            costs = clustering_objective_function(snapshot, data_tsne, n_clusters)
             # pick the particle with minimal cost
             idx = np.argmin(costs)
             # reshape its position into (n_clusters, n_features)
-            best_centers_history.append(
-                snapshot[idx].reshape((n_clusters, n_features))
-            )
+            best_centers_history.append(snapshot[idx].reshape((n_clusters, n_features)))
         best_centers_history = np.array(best_centers_history)
     else:
         best_centers_history = None
 
-    return (best_cost,
-            best_centers,
-            labels,
-            pos_history,
-            cost_history,
-            best_centers_history)
+    return (
+        best_cost,
+        best_centers,
+        labels,
+        pos_history,
+        cost_history,
+        best_centers_history,
+    )
+
 
 def run_abc(
-    data_tsne,
-    n_clusters,
-    iters=100,
-    n_food_sources=30,
-    limit=20,
-    record_history=False
+    data_tsne, n_clusters, iters=100, n_food_sources=30, limit=20, record_history=False
 ):
     """
     Run ABC to cluster the t-SNE data and optionally record the movement of the food sources,
@@ -212,9 +212,9 @@ def run_abc(
     # Prepare history storage
     if record_history:
         history = {
-            'positions': [food_sources.copy()],
-            'costs': [best_cost],
-            'best_centers': [best_solution.reshape((n_clusters, n_features))]
+            "positions": [food_sources.copy()],
+            "costs": [best_cost],
+            "best_centers": [best_solution.reshape((n_clusters, n_features))],
         }
     else:
         history = None
@@ -273,21 +273,22 @@ def run_abc(
 
         # Record history
         if record_history:
-            history['positions'].append(food_sources.copy())
-            history['costs'].append(best_cost)
-            history['best_centers'].append(
+            history["positions"].append(food_sources.copy())
+            history["costs"].append(best_cost)
+            history["best_centers"].append(
                 best_solution.reshape((n_clusters, n_features))
             )
 
     # Final assignments
     best_centers = best_solution.reshape((n_clusters, n_features))
-    distances = cdist(data_tsne, best_centers, metric='euclidean')
+    distances = cdist(data_tsne, best_centers, metric="euclidean")
     labels = np.argmin(distances, axis=1)
 
     # Convert best_centers history to array if recorded
     if record_history:
-        history['best_centers'] = np.array(history['best_centers'])
+        history["best_centers"] = np.array(history["best_centers"])
     return best_cost, best_centers, labels, history
+
 
 def run_acor(
     data_tsne,
@@ -297,7 +298,7 @@ def run_acor(
     ants=30,
     q=0.5,
     xi=0.85,
-    record_history=False
+    record_history=False,
 ):
     """
     Run ACOR to cluster the t-SNE data and optionally record the archive evolution, cost history,
@@ -335,9 +336,9 @@ def run_acor(
     if record_history:
         best_idx0 = np.argmin(fitness)
         archive_history = {
-            'archives': [archive.copy()],
-            'costs': [fitness[best_idx0]],
-            'best_centers': [archive[best_idx0].reshape((n_clusters, n_features))]
+            "archives": [archive.copy()],
+            "costs": [fitness[best_idx0]],
+            "best_centers": [archive[best_idx0].reshape((n_clusters, n_features))],
         }
     else:
         archive_history = None
@@ -350,8 +351,9 @@ def run_acor(
 
         # Compute weights (Gaussian kernel based on rank)
         ranks = np.arange(archive_size)
-        weights = (1 / (q * archive_size * np.sqrt(2 * np.pi))) * \
-                  np.exp(- (ranks ** 2) / (2 * (q * archive_size) ** 2))
+        weights = (1 / (q * archive_size * np.sqrt(2 * np.pi))) * np.exp(
+            -(ranks**2) / (2 * (q * archive_size) ** 2)
+        )
         weights = weights / np.sum(weights)
 
         # Compute standard deviations for Gaussian sampling
@@ -369,7 +371,9 @@ def run_acor(
             new_solution = np.clip(new_solution, lb, ub)
             new_solutions[i] = new_solution
 
-        new_fitness = clustering_objective_function(new_solutions, data_tsne, n_clusters)
+        new_fitness = clustering_objective_function(
+            new_solutions, data_tsne, n_clusters
+        )
 
         # Merge archive and new solutions, then keep the best 'archive_size' solutions
         combined = np.vstack((archive, new_solutions))
@@ -381,9 +385,9 @@ def run_acor(
         # Record archive, best cost, and best centers for this iteration
         if record_history:
             best_idx = np.argmin(fitness)
-            archive_history['archives'].append(archive.copy())
-            archive_history['costs'].append(fitness[best_idx])
-            archive_history['best_centers'].append(
+            archive_history["archives"].append(archive.copy())
+            archive_history["costs"].append(fitness[best_idx])
+            archive_history["best_centers"].append(
                 archive[best_idx].reshape((n_clusters, n_features))
             )
 
@@ -391,13 +395,14 @@ def run_acor(
     best_solution = archive[np.argmin(fitness)]
     best_cost = np.min(fitness)
     best_centers = best_solution.reshape((n_clusters, n_features))
-    distances = cdist(data_tsne, best_centers, metric='euclidean')
+    distances = cdist(data_tsne, best_centers, metric="euclidean")
     labels = np.argmin(distances, axis=1)
 
     # Convert best_centers history to array if recorded
     if record_history:
-        archive_history['best_centers'] = np.array(archive_history['best_centers'])
+        archive_history["best_centers"] = np.array(archive_history["best_centers"])
     return best_cost, best_centers, labels, archive_history
+
 
 def animate_best_center_history(
     data,
@@ -406,7 +411,7 @@ def animate_best_center_history(
     center_idx,
     interval=200,
     figsize=(8, 6),
-    margin=5
+    margin=5,
 ):
     """
     Animate the search of a single cluster center, showing both all particle positions
@@ -444,47 +449,49 @@ def animate_best_center_history(
     fig, ax = plt.subplots(figsize=figsize)
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(y_min, y_max)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    title = ax.set_title(f'Cluster center #{center_idx} search')
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    title = ax.set_title(f"Cluster center #{center_idx} search")
 
     # Scatter of all particle positions for this center
-    scat = ax.scatter([], [], c='blue', s=50, label=f'Particles C{center_idx}')
+    scat = ax.scatter([], [], c="blue", s=50, label=f"Particles C{center_idx}")
     # Scatter for the current best center (will update each frame)
     scat_best = ax.scatter(
-        [], [],
-        c='red', marker='X', s=100,
-        label=f'Best Center C{center_idx}'
+        [], [], c="red", marker="X", s=100, label=f"Best Center C{center_idx}"
     )
-    ax.legend(loc='upper right')
+    ax.legend(loc="upper right")
 
     def update(frame):
         # Update particle positions
-        pts = pos_history[frame]           # shape (n_particles, dim)
-        center_pts = pts[:, i0:i1]         # shape (n_particles, 2)
+        pts = pos_history[frame]  # shape (n_particles, dim)
+        center_pts = pts[:, i0:i1]  # shape (n_particles, 2)
         scat.set_offsets(center_pts)
         # Update current best center
         best_pt = best_centers_history[frame, center_idx]
         scat_best.set_offsets(best_pt.reshape(1, 2))
         # Update title
-        title.set_text(f'Iteration {frame + 1}/{n_iters}')
+        title.set_text(f"Iteration {frame + 1}/{n_iters}")
         return scat, scat_best, title
 
     ani = animation.FuncAnimation(
-        fig,
-        update,
-        frames=n_iters,
-        interval=interval,
-        blit=True,
-        repeat=False
+        fig, update, frames=n_iters, interval=interval, blit=True, repeat=False
     )
     return ani
 
 
-def plot_clusters(data, labels, title, centers=None,
-                  x_label="x", y_label="y", 
-                  cmap='viridis', alpha=0.7, 
-                  center_color='red', center_marker='X', center_size=200):
+def plot_clusters(
+    data,
+    labels,
+    title,
+    centers=None,
+    x_label="x",
+    y_label="y",
+    cmap="viridis",
+    alpha=0.7,
+    center_color="red",
+    center_marker="X",
+    center_size=200,
+):
     """
     Plots clustering results on a 2D scatter plot.
 
@@ -512,7 +519,13 @@ def plot_clusters(data, labels, title, centers=None,
 
     plt.scatter(data[:, 0], data[:, 1], c=labels, cmap=cmap, alpha=alpha)
     if centers is not None:
-        plt.scatter(centers[:, 0], centers[:, 1], c=center_color, s=center_size, marker=center_marker)
+        plt.scatter(
+            centers[:, 0],
+            centers[:, 1],
+            c=center_color,
+            s=center_size,
+            marker=center_marker,
+        )
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
