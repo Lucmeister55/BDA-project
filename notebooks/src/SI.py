@@ -86,11 +86,11 @@ def calculate_clustering_scores(data, labels):
 
     Returns:
         sil_score (float):
-            Mean Silhouette Coefficient (−1 to 1, higher = better).
+            Mean Silhouette Coefficient (-1 to 1, higher = better).
         db_score (float):
-            Davies–Bouldin Index (lower = better).
+            Davies-Bouldin Index (lower = better).
         ch_score (float):
-            Calinski–Harabasz Index (higher = better).
+            Calinski-Harabasz Index (higher = better).
     """
     # Silhouette: cohesion vs. separation
     sil_score = round(silhouette_score(data, labels), 3)
