@@ -7,21 +7,37 @@ This repository provides a benchmarking framework for three Swarm Intelligence (
 ## Datasets
 
 ### PBMC 10k
-A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cells (PBMCs). We reduce high-dimensional expression profiles to 2D via PCA and then cluster the first 2 components.  
-- **Ground truth:** None used.  
-- **Parameter tuning:** Algorithm hyperparameters were tuned via grid search on a held-out subset.  
-**Note:** 2D input enables animated visualization of search dynamics (`record_history` flag).
 
-### Crop Yield Dataset
-An agricultural dataset with multivariate measurements (soil, climate) for different fields.  
-- **Ground truth:** 
-- **Parameter tuning:**  
+A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cells (PBMCs). We reduce high-dimensional expression profiles to 2D via PCA and then cluster the first 2 components.
+
+- **Ground truth:** None used.
+- **Parameter tuning:** Algorithm hyperparameters were tuned via grid search on a held-out subset.  
+  **Note:** 2D input enables animated visualization of search dynamics (`record_history` flag).
+
+### Salinas Dataset (multispectral aerial image of agricultural land)
+
+The data is a multispectral image (instead of the usual 3-dimensional rgb images) of which the pixels are correctly labeled. This particular image is an aerial image of an agricultural landscape of which each pixel has reflectance values at 204 different wavelengths and label of its land use/crop.
+
+- **Ground truth:** Labels are available.
+- **Parameter tuning:**
 <!-- Consider clarifying whether parameter tuning should be a distinct script or part of the main pipeline. -->
 
+On t-SNE (2 dimensions) -> Works but not beneficial
+
+On data without dimensionality reduction -> Less clusters in solution than specified. With high dimensionality it is highly possible that all points are closest to just one centroid and the chance of finding a local minima where all centroids have points assigned to it is really small.
+
+On 7 pca components of the data -> same result as previous point. Maybe there is a better way of initialising the particles.
+
+On 7 pca components of the data and with hybrid KMeans++/PSO -> essentially picking better starting positions for the particles by using kmeans++. Either having one particle position be from kmeans++ and the others random, having particle positions which are perturbations around a kmeans++ solution or having some particle positions be a kmeans++ solution and the others random. The solution had the right amount of clusters but it was just the best Kmeans++ solution. There was at no point a better solution found (and thus practically no PSO was used, making it pointless)
+
+I will look into finding a dataset of which it is known that PSO works well.
+
 ### Speeches Clustering Dataset
-A textual dataset of speeches represented as TF-IDF vectors, aiming to group by speaker or topic. 
-- **Ground truth:**  
-- **Parameter tuning:** 
+
+A textual dataset of speeches represented as TF-IDF vectors, aiming to group by speaker or topic.
+
+- **Ground truth:**
+- **Parameter tuning:**
 
 ## Clustering Methods
 
@@ -34,6 +50,7 @@ J(\{\boldsymbol{\mu}_j\}) = \sum_{i=1}^n \min_{1 \le j \le k} \|\mathbf{x}_i - \
 $$
 
 **Steps:**
+
 1. **Assignment:**
    $$
    z_i = \underset{1 \le j \le k}{\arg\min}\; \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2.
@@ -45,6 +62,7 @@ $$
    where $C_j = \{i:\,z_i = j\}$.
 
 **Code reference:** Uses `sklearn.cluster.KMeans`:
+
 ```python
 from sklearn.cluster import KMeans
 km = KMeans(n_clusters=k, init='k-means++', max_iter=300)
@@ -59,18 +77,22 @@ centers = km.cluster_centers_
 **Idea:** Treat each set of $k$ centers as a “particle.” Particles move in the search space, influenced by their own best-known position (pbest) and the swarm’s global best (gbest).
 
 **Updates:**
+
 $$
 \begin{aligned}
 v_{t+1} &= w\,v_t + c_1\,r_1\,(\mathrm{pbest}_i - x_t^i) + c_2\,r_2\,(\mathrm{gbest} - x_t^i),\\
 x_{t+1}^i &= x_t^i + v_{t+1},
 \end{aligned}
 $$
+
 where:
+
 - $w$ = inertia weight,
 - $c_1,c_2$ = cognitive/social coefficients,
 - $r_1,r_2 \sim \mathcal{U}(0,1)$.
 
 **Cost function:** Same K-Means objective $J$, implemented in:
+
 ```python
 def clustering_objective_function(particles, data, n_clusters):
     # particles: shape (n_particles, k * d)
@@ -78,6 +100,7 @@ def clustering_objective_function(particles, data, n_clusters):
 ```
 
 **Invocation:**
+
 ```python
 best_cost, best_pos = optimizer.optimize(
     clustering_objective_function,
@@ -86,6 +109,7 @@ best_cost, best_pos = optimizer.optimize(
     n_clusters=n_clusters,
 )
 ```
+
 then reshape `best_pos` → `(k, d)` and assign labels by nearest center.
 
 ---
@@ -132,15 +156,19 @@ then reshape `best_pos` → `(k, d)` and assign labels by nearest center.
 #### Internal (no ground truth)
 
 - **Silhouette Coefficient** $s(i) \in [-1, 1]$:
+
   $$
   s(i) = \frac{b(i) - a(i)}{\max\{a(i), b(i)\}},
   $$
+
   where $a(i)$ = mean intra-cluster distance, $b(i)$ = mean nearest-cluster distance.
 
 - **Davies–Bouldin Index (DB)** (lower is better):
+
   $$
   \mathrm{DB} = \frac{1}{k}\sum_{i=1}^k \max_{j \neq i} \frac{S_i + S_j}{\|\mu_i - \mu_j\|},
   $$
+
   with $S_i$ = average distance of points in cluster $i$ to $\mu_i$.
 
 - **Calinski–Harabasz Index (CH)** (higher is better):
