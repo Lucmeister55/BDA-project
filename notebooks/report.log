@@ -1,0 +1,8 @@
+2025-04-30 13:46:35,587 - matplotlib.animation - WARNING - MovieWriter imagemagick unavailable; using Pillow instead.
+2025-04-30 13:46:35,595 - matplotlib.animation - INFO - Animation.save using <class 'matplotlib.animation.PillowWriter'>
+2025-04-30 13:54:06,943 - matplotlib.animation - WARNING - MovieWriter imagemagick unavailable; using Pillow instead.
+2025-04-30 13:54:06,945 - matplotlib.animation - INFO - Animation.save using <class 'matplotlib.animation.PillowWriter'>
+2025-04-30 13:57:57,909 - matplotlib.animation - WARNING - MovieWriter imagemagick unavailable; using Pillow instead.
+2025-04-30 13:57:57,910 - matplotlib.animation - INFO - Animation.save using <class 'matplotlib.animation.PillowWriter'>
+2025-04-30 14:05:42,844 - matplotlib.animation - WARNING - MovieWriter imagemagick unavailable; using Pillow instead.
+2025-04-30 14:05:42,846 - matplotlib.animation - INFO - Animation.save using <class 'matplotlib.animation.PillowWriter'>
