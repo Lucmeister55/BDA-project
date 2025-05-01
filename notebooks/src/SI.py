@@ -108,7 +108,7 @@ def calculate_clustering_scores(data, labels):
 # 2. PSO Implementation (using pyswarms)
 # -------------------------------
 def run_pso(
-    data_tsne,
+    data,
     n_clusters,
     iters=100,
     n_particles=30,
@@ -120,8 +120,7 @@ def run_pso(
     of the particles and the best centers at each iteration.
 
     Parameters:
-        data_tsne (np.array): The input data, typically a 2D array of shape (n_samples, n_features).
-                              For t-SNE data, n_features should be 2.
+        data (np.array): The input data, typically a 2D array of shape (n_samples, n_features).
         n_clusters (int): Number of clusters to form.
         iters (int): Number of iterations for the PSO algorithm.
         n_particles (int): Number of particles in the swarm.
@@ -150,12 +149,12 @@ def run_pso(
                                                  Each element is a 2D array representing the cluster centers
                                                  at a specific iteration. If record_history is False, this is None.
     """
-    n_features = data_tsne.shape[1]  # should be 2 for t-SNE
+    n_features = data.shape[1]  # should be 2 for t-SNE
     dimensions = n_clusters * n_features
 
     # Define bounds based on the t-SNE data range
-    lb = np.min(data_tsne) * np.ones(dimensions)
-    ub = np.max(data_tsne) * np.ones(dimensions)
+    lb = np.min(data) * np.ones(dimensions)
+    ub = np.max(data) * np.ones(dimensions)
     bounds = (lb, ub)
 
     optimizer = ps.single.GlobalBestPSO(
@@ -166,7 +165,7 @@ def run_pso(
     best_cost, best_pos = optimizer.optimize(
         clustering_objective_function,
         iters=iters,
-        data=data_tsne,
+        data=data,
         n_clusters=n_clusters,
         verbose=False,
     )
@@ -179,7 +178,7 @@ def run_pso(
     best_centers = best_pos.reshape((n_clusters, n_features))
 
     # assign labels for the final solution
-    distances = cdist(data_tsne, best_centers, metric="euclidean")
+    distances = cdist(data, best_centers, metric="euclidean")
     labels = np.argmin(distances, axis=1)
 
     # now build best_centers_history by re-evaluating each snapshot
@@ -188,7 +187,7 @@ def run_pso(
         for snapshot in pos_history:
             # snapshot: shape (n_particles, dimensions)
             # evaluate all particles at this iter
-            costs = clustering_objective_function(snapshot, data_tsne, n_clusters)
+            costs = clustering_objective_function(snapshot, data, n_clusters)
             # pick the particle with minimal cost
             idx = np.argmin(costs)
             # reshape its position into (n_clusters, n_features)
@@ -208,14 +207,14 @@ def run_pso(
 
 
 def run_abc(
-    data_tsne, n_clusters, iters=100, n_food_sources=30, limit=20, record_history=False
+    data, n_clusters, iters=100, n_food_sources=30, limit=20, record_history=False
 ):
     """
     Run ABC to cluster the t-SNE data and optionally record the movement of the food sources,
     the corresponding cost history, and the best centers per iteration.
 
     Parameters:
-        data_tsne (np.array): The t-SNE 2D data.
+        data (np.array): The input data.
         n_clusters (int): Number of clusters to form.
         iters (int): Number of iterations.
         n_food_sources (int): Number of food sources.
@@ -231,14 +230,14 @@ def run_abc(
             'costs' (list of best cost per iteration),
             'best_centers' (array of best centers per iteration, shape (iters+1, n_clusters, 2)).
     """
-    n_features = data_tsne.shape[1]
+    n_features = data.shape[1]
     dimensions = n_clusters * n_features
-    lb = np.min(data_tsne) * np.ones(dimensions)
-    ub = np.max(data_tsne) * np.ones(dimensions)
+    lb = np.min(data) * np.ones(dimensions)
+    ub = np.max(data) * np.ones(dimensions)
 
     # Initialize food sources randomly
     food_sources = np.random.uniform(low=lb, high=ub, size=(n_food_sources, dimensions))
-    fitness = clustering_objective_function(food_sources, data_tsne, n_clusters)
+    fitness = clustering_objective_function(food_sources, data, n_clusters)
     trial_counters = np.zeros(n_food_sources, dtype=int)
 
     # Initialize best solution
@@ -265,7 +264,7 @@ def run_abc(
             candidate = food_sources[i] + phi * (food_sources[i] - food_sources[j])
             candidate = np.clip(candidate, lb, ub)
             candidate_fitness = clustering_objective_function(
-                candidate[np.newaxis, :], data_tsne, n_clusters
+                candidate[np.newaxis, :], data, n_clusters
             )[0]
             if candidate_fitness < fitness[i]:
                 food_sources[i] = candidate
@@ -284,7 +283,7 @@ def run_abc(
                 candidate = food_sources[i] + phi * (food_sources[i] - food_sources[j])
                 candidate = np.clip(candidate, lb, ub)
                 candidate_fitness = clustering_objective_function(
-                    candidate[np.newaxis, :], data_tsne, n_clusters
+                    candidate[np.newaxis, :], data, n_clusters
                 )[0]
                 if candidate_fitness < fitness[i]:
                     food_sources[i] = candidate
@@ -298,7 +297,7 @@ def run_abc(
             if trial_counters[i] > limit:
                 food_sources[i] = np.random.uniform(low=lb, high=ub, size=dimensions)
                 fitness[i] = clustering_objective_function(
-                    food_sources[i][np.newaxis, :], data_tsne, n_clusters
+                    food_sources[i][np.newaxis, :], data, n_clusters
                 )[0]
                 trial_counters[i] = 0
 
@@ -318,7 +317,7 @@ def run_abc(
 
     # Final assignments
     best_centers = best_solution.reshape((n_clusters, n_features))
-    distances = cdist(data_tsne, best_centers, metric="euclidean")
+    distances = cdist(data, best_centers, metric="euclidean")
     labels = np.argmin(distances, axis=1)
 
     # Convert best_centers history to array if recorded
@@ -328,7 +327,7 @@ def run_abc(
 
 
 def run_acor(
-    data_tsne,
+    data,
     n_clusters,
     iters=100,
     archive_size=30,
@@ -342,7 +341,7 @@ def run_acor(
     and the best centers at each iteration.
 
     Parameters:
-        data_tsne (np.array): The t-SNE 2D data.
+        data (np.array): The input data.
         n_clusters (int): Number of clusters.
         iters (int): Number of iterations.
         archive_size (int): Size of the solution archive.
@@ -360,14 +359,14 @@ def run_acor(
             - 'costs': list of best cost per iteration
             - 'best_centers': array of best centers per iteration, shape (iters+1, n_clusters, 2)
     """
-    n_features = data_tsne.shape[1]
+    n_features = data.shape[1]
     dimensions = n_clusters * n_features
-    lb = np.min(data_tsne) * np.ones(dimensions)
-    ub = np.max(data_tsne) * np.ones(dimensions)
+    lb = np.min(data) * np.ones(dimensions)
+    ub = np.max(data) * np.ones(dimensions)
 
     # Initialize archive with random solutions
     archive = np.random.uniform(low=lb, high=ub, size=(archive_size, dimensions))
-    fitness = clustering_objective_function(archive, data_tsne, n_clusters)
+    fitness = clustering_objective_function(archive, data, n_clusters)
 
     # Initialize archive history as a dictionary if required
     if record_history:
@@ -409,7 +408,7 @@ def run_acor(
             new_solutions[i] = new_solution
 
         new_fitness = clustering_objective_function(
-            new_solutions, data_tsne, n_clusters
+            new_solutions, data, n_clusters
         )
 
         # Merge archive and new solutions, then keep the best 'archive_size' solutions
@@ -432,7 +431,7 @@ def run_acor(
     best_solution = archive[np.argmin(fitness)]
     best_cost = np.min(fitness)
     best_centers = best_solution.reshape((n_clusters, n_features))
-    distances = cdist(data_tsne, best_centers, metric="euclidean")
+    distances = cdist(data, best_centers, metric="euclidean")
     labels = np.argmin(distances, axis=1)
 
     # Convert best_centers history to array if recorded
@@ -455,7 +454,7 @@ def animate_best_center_history(
     and the current best particle's center per iteration.
 
     Parameters:
-        data_tsne (np.ndarray): t-SNE embedding, shape (n_samples, 2).
+        data (np.ndarray): The input data.
         pos_history (list of np.ndarray): List of particle positions each iteration,
             each array shape (n_particles, n_clusters*2).
         best_centers_history (np.ndarray): Array of best centers per iteration,
