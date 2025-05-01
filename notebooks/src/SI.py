@@ -149,7 +149,7 @@ def run_pso(
                                                  Each element is a 2D array representing the cluster centers
                                                  at a specific iteration. If record_history is False, this is None.
     """
-    n_features = data.shape[1]  # should be 2 for t-SNE
+    n_features = data.shape[1]
     dimensions = n_clusters * n_features
 
     # Define bounds based on the t-SNE data range
