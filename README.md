@@ -14,23 +14,11 @@ A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cell
 - **Parameter tuning:** Algorithm hyperparameters were tuned via grid search on a held-out subset.  
   **Note:** 2D input enables animated visualization of search dynamics (`record_history` flag).
 
-### Salinas Dataset (multispectral aerial image of agricultural land)
+### Iris Dataset
 
-The data is a multispectral image (instead of the usual 3-dimensional rgb images) of which the pixels are correctly labeled. This particular image is an aerial image of an agricultural landscape of which each pixel has reflectance values at 204 different wavelengths and label of its land use/crop.
+The iris dataset consists of 150 samples from three species of the Iris flower (Iris setosa, Iris versicolor, and Iris virginica), with four features measured for each sample: sepal length, sepal width, petal length, and petal width, all in centimeters.
 
 - **Ground truth:** Labels are available.
-- **Parameter tuning:**
-<!-- Consider clarifying whether parameter tuning should be a distinct script or part of the main pipeline. -->
-
-On t-SNE (2 dimensions) -> Works but not beneficial
-
-On data without dimensionality reduction -> Less clusters in solution than specified. With high dimensionality it is highly possible that all points are closest to just one centroid and the chance of finding a local minima where all centroids have points assigned to it is really small.
-
-On 7 pca components of the data -> same result as previous point. Maybe there is a better way of initialising the particles.
-
-On 7 pca components of the data and with hybrid KMeans++/PSO -> essentially picking better starting positions for the particles by using kmeans++. Either having one particle position be from kmeans++ and the others random, having particle positions which are perturbations around a kmeans++ solution or having some particle positions be a kmeans++ solution and the others random. The solution had the right amount of clusters but it was just the best Kmeans++ solution. There was at no point a better solution found (and thus practically no PSO was used, making it pointless)
-
-I will look into finding a dataset of which it is known that PSO works well.
 
 ### Speeches Clustering Dataset
 
