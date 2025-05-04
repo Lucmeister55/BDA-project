@@ -258,22 +258,16 @@ def run_acoc(
 ```
 
 1. **archive_size** (`K`)  
-   How many elite solutions you keep after each loop. A small `K` zeroes in on the very best points (high exploitation), while a larger `K` keeps more variety in play (high exploration).
+   How many elite solutions are kept after each loop. A small `K` zeroes in on the very best points (high exploitation), while a larger `K` keeps more variety in play (high exploration).
 
 2. **ants** (`m`)  
-   The number of new samples (or “ants”) you send out each iteration. More ants give you a denser look at promising regions but cost more to evaluate.
+   The number of new samples (or "ants") that are sent out each iteration. More ants give you a denser look at promising regions but cost more to evaluate.
 
 3. **q** (kernel weight factor)  
-   Governs how strongly you prefer your top archive members when choosing where to sample next. A low `q` heightens focus on the very best solutions; a higher `q` spreads your attention more evenly across all elites.
+   Governs how strongly the top archive members are preferred when choosing where to sample next. A low `q` heightens focus on the very best solutions; a higher `q` spreads attention more evenly across all elites.
 
 4. **xi** (spread scaler)  
-   Sets how broadly you explore around each chosen solution. A larger `xi` means wider sampling clouds (more exploration); a smaller `xi` tightens your search around each point (more exploitation).
-
-5. **Candidate generation**  
-   At each step, you:
-   - Pick one of the `K` archive solutions, with better-ranked ones more likely (controlled by `q`).  
-   - Draw a brand-new point by adding Gaussian “jitter” around that solution, where the jitter size depends on `xi` and how far apart your archive points are.  
-   - Clip to ensure it stays within bounds, then evaluate and fold back into the archive—keeping the best `K` again.
+   Sets how broadly is explored around each chosen solution. A larger `xi` means wider sampling clouds (more exploration); a smaller `xi` tightens the search around each point (more exploitation).
 
 ### 3.3 Initialization
 
@@ -285,58 +279,48 @@ fitness = evaluate(archive)
 - **`archive`**: A matrix of size `(archive_size, dims)` initialized randomly within the bounds `lb` and `ub`.
 - **`fitness`**: Evaluates the quality of each solution in the archive.
 
-### 3.4 Iterative Updates
+## 3.4 Iterative Updates
 
-At iteration $t$, given archive $T^{(t-1)} = \{\mathbf{x}_1,\dots,\mathbf{x}_K\}$ with corresponding fitnesses $f(\mathbf{x}_l)$:
+At each iteration, an **archive** of the best solutions found so far is maintained. This archive is then used to guide the creation of new candidate solutions.
 
-1. **Sort Archive**  
-   - Compute permutation $\pi$ such that  
-     $
-       f\bigl(\mathbf{x}_{\pi(1)}\bigr)\le f\bigl(\mathbf{x}_{\pi(2)}\bigr)\le\cdots\le f\bigl(\mathbf{x}_{\pi(K)}\bigr).
-     $  
-   - Reorder: $\mathbf{x}_{(l)} = \mathbf{x}_{\pi(l)},\;\;l=1\dots K$.
+1. **Solution ranking**
+   
+   First, the archive is sorted from best to worst based on their fitness.
 
-2. **Compute Component Weights**  
-   - Raw weight for rank $l$:  
-     $
-       W_l \;=\; \frac{1}{q\,K\sqrt{2\pi}}\;\exp\!\Bigl(-\tfrac{(l-1)^2}{2\,(qK)^2}\Bigr).
-     $  
-   - Normalize:  
-     $
-       p_l = \frac{W_l}{\sum_{j=1}^K W_j},\quad \sum_{l=1}^K p_l = 1.
-     $
+2. **Importance calculation**
+   
+   Each archived solution is given a weight that reflects its rank: the top solution receives the highest weight, the next one slightly less, and so on.
+   Mathematically, a bell-shaped (Gaussian) formula is used to compute a raw score for each rank, which are then scaled so they sum to 1:
 
-3. **Compute Sampling Spreads**  
-   - For each elite $\mathbf{x}_{(l)}$ and each dimension $d$,  
-     $
-       \sigma_{l,d}
-       = \xi \;\frac{1}{K-1}
-         \sum_{\substack{j=1 \\ j\neq l}}^{K}
-         \bigl|\;x_{(j),d} - x_{(l),d}\bigr|.
-     $
+   $$
+   p_l \;=\; \frac{1}{Z}\,\exp\Bigl(-\frac{(l-1)^2}{2\,(qK)^2}\Bigr),
+   $$
 
-4. **Generate $m$ New Ants**  
-   For each ant $i=1,\dots,m$:
-   1. Draw component index $L_i\sim\text{Categorical}(p_1,\dots,p_K)$.  
-   2. Sample each coordinate:  
-      $
-        s_{i,d}
-        \;\sim\;
-        \mathcal{N}\bigl(\mu_{L_i,d}=x_{(L_i),d},\;\sigma_{L_i,d}^2\bigr).
-      $  
-   3. Clip: $s_{i,d}\leftarrow\min\{\max\{s_{i,d},\,\text{lb}_d\},\,\text{ub}_d\}$.
+   where $l$ is the rank (1 for best), $K$ is the archive size, $q$ controls how sharply the weights drop off, and $Z$ is a normalizing constant.
 
-5. **Evaluate New Solutions**  
-   - Compute fitness vector $\mathbf{f}_{\text{new}} = [\,f(\mathbf{s}_1),\dots,f(\mathbf{s}_m)\,]$.
+3. **Solution spread**
+   
+   For each archived solution, their difference compared to the others in each coordinate (dimension) is quantified.
+   Intuitively, if one solution is quite isolated, we allow more variability around it when sampling. We summarize this by computing a spread (standard deviation) for each coordinate:
 
-6. **Merge & Prune**  
-   - Stack  
-     $\tilde T = [\,\mathbf{x}_{(1)},\dots,\mathbf{x}_{(K)},\,\mathbf{s}_1,\dots,\mathbf{s}_m\,]$  
-     with fitness $\tilde{\mathbf{f}}=[f(\mathbf{x}_{(l)})]_{l=1}^K\|\mathbf{f}_{\text{new}}$.  
-   - Sort $\tilde T$ by $\tilde{\mathbf{f}}$ ascending and truncate to the best $K$:
-     $
-       T^{(t)} = \bigl\{\tilde T_{(1)},\dots,\tilde T_{(K)}\bigr\}.
-     $
+   $$
+   \sigma_{l,d} \;=\; \xi \times \text{average absolute difference in dimension }d   $$
+
+   Here, $\xi$ scales how wide our sampling can be.
+
+4. **Create New "Ant" Solutions**
+   $m$ new candidates (ants) are generated as follows:
+
+   1. **Pick an archive member**: one of the $K$ archived solutions is randomly chosen, where better-ranked ones are more likely to be picked (using the weights $p_l$).
+   2. **Sample around it**: for each dimension, a new coordinate is drawn from a Gaussian distribution centered at the chosen solution’s value with spread $\sigma_{l,d}$.
+
+5. **Evaluate Everything**
+   The fitness (cost) of these $m$ new ants is computed using the clustering objective.
+
+6. **Update the Archive**
+   The old archive is merged and the new ants, then keep only the top $K$ solutions from this combined pool. These become the archive for the next iteration.
+
+By repeating these steps, the archive gradually improves, focusing the search in promising regions while still exploring new areas. Over time, this balances exploration (looking around diverse solutions) and exploitation (refining the best ones).
 
 ### 3.5 Final Assignment
 
