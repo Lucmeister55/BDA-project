@@ -31,7 +31,7 @@ A textual dataset of speeches represented as frequencies of 181 different 3/4-gr
  4. **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
 
 - **Parameter tuning:** Manually adjusted but the default values were often fine.
-- **Note:** Part of the research on this dataset is to see whether these groups can be differentiated.
+- **Note:** Part of the research on this dataset is to see whether these groups can be differentiated so accuracy score do not make sense in this context.
 
 ## Clustering Methods
 
