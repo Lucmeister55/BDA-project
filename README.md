@@ -1,18 +1,30 @@
 # SI Algorithm Clustering Benchmark
 
-This repository provides a benchmarking framework for three Swarm Intelligence (SI) clustering algorithms—Particle Swarm Optimization (PSO), Artificial Bee Colony (ABC), and Ant Colony Optimization for Real-valued problems (ACOR)—alongside a baseline K-Means implementation. Each method is evaluated across three distinct datasets, with implementations in `SI.py`, optional hyperparameter tuning, and visualization tools to compare performance.
+This repository provides a benchmarking framework for three Swarm Intelligence (SI) clustering algorithms—Particle Swarm Optimization (PSO), Artificial Bee Colony (ABC), and Ant Colony Optimization for Real-valued problems (ACOR)—alongside a baseline K-Means implementation.
 
 ![Alt Text](results\pbmc10k\pso\pso_animation_center0.gif)
 
 ## Datasets
 
-### PBMC 10k
+### PBMC 10k (`notebooks\pbmc10k.ipynb`)
 
-A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cells (PBMCs). We reduce high-dimensional expression profiles to 2D via PCA and then cluster the first 2 components.
+[A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cells (PBMC)](https://www.10xgenomics.com/datasets/10-k-peripheral-blood-mononuclear-cells-pbm-cs-from-a-healthy-donor-single-indexed-3-1-standard-4-0-0). 
 
-- **Ground truth:** None used.
-- **Parameter tuning:** Algorithm hyperparameters were tuned via grid search on a held-out subset.  
-  **Note:** 2D input enables animated visualization of search dynamics (`record_history` flag).
+For this specific dataset, high-dimensional mRNA expression count profiles from these cells were preprocessed and reduced via PCA, upon which only the first 2 principal components were clustered. Thus, this notebook primarily serves to illustrate the visual aspects of swarm clustering, and does not emphasize relative rankings (see other datasets for more representative benchmarking settings).
+
+- **Ground truth:** True cell identities. No labels available.
+
+- **Parameter tuning:** Algorithm hyperparameters were tuned via grid search (and for swarm‑based methods further refined via Bayesian optimization), using negative silhouette score as objective to minimize.
+
+- **Results (`results\pbmc10k\...`):** 
+
+  - Animations (`*.gif`)
+  - Best parameters (`*.json`)
+  - Final scores (`clustering_results.csv`)
+
+- **Discussion:** All algorithms converge to more or less the exact same solution (`Silhouette Score = 0.734`), most likely due to a combination of low input dimensionality, rigorous parameter tuning and simple objective/class assignment logic, together resulting in a trivial solution. Suffice to say, this confirms that the overhead cost of using algorithms in such settings holds no benefit compared to K-means' efficiency.
+
+> **Note:** 2D input enables animated visualization of search dynamics (`record_history` flag).
 
 ### Iris Dataset
 
@@ -36,6 +48,9 @@ A textual dataset of speeches represented as frequencies of 181 different 3/4-gr
 - **Note:** Part of the research on this dataset is to see whether these groups can be differentiated so accuracy score do not make sense in this context.
 
 ## Clustering Methods
+
+- **Function source code:** `notebooks\src\SI.py`
+- **(More) algorithm details:** `notebooks\src\algorithms.md`
 
 ### 1. K-Means (Baseline)
 
@@ -181,7 +196,3 @@ Computed by `calculate_clustering_scores(data, labels)`.
 - **Adjusted Rand Index (ARI)**: corrected-for-chance measure of agreement.
 
 Computed by `evaluate_labels(data, true_labels, predicted_labels)`.
-
----
-
-Refer to `SI.py` for full implementation and parameter details. Visualization functions enable inspection of algorithm search trajectories.
