@@ -35,7 +35,7 @@ The iris dataset consists of 150 samples from three species of the Iris flower (
 
 ### Speeches Clustering Dataset (`notebooks\speeches_clust.ipynb`)
 
-A textual dataset of speeches represented as frequencies of 181 different 3/4-grams transformed by Discriminant Correspondence Analysis
+A textual dataset of speeches represented as frequencies of 181 different 3/4-grams transformed by Discriminant Correspondence Analysis. The transformed dataset results in each speech having 4 dimensions ranked from most to least important.
 
 - **Ground truth:** Grouped into 4 different categories:
 
@@ -45,7 +45,9 @@ A textual dataset of speeches represented as frequencies of 181 different 3/4-gr
   4.  **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
 
 - **Parameter tuning:** Manually adjusted but the default values were often fine.
-- **Note:** Part of the research on this dataset is to see whether these groups can be differentiated so accuracy score do not make sense in this context.
+- **Discussion:**  KMeans, PSO and ACOR performed similarly (`Accuracy ~= 0.76, Rand ~=0.43, Silhouette ~= 0.45`) , whilst ABC often explored too much and performed worse. Since the dataset itself is quite noisy a perfect clustering is most likely not possible.
+
+> **Note:** Since the dimensions are ranked from most to least important, visualizations can be made using the first 2 Dimensions.
 
 ## Clustering Methods
 
