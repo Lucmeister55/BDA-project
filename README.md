@@ -47,7 +47,7 @@ A textual dataset of speeches represented as frequencies of 181 different 3/4-gr
 - **Parameter tuning:** Manually adjusted but the default values were often fine.
 - **Discussion:**  KMeans, PSO and ACOR performed similarly (`Accuracy ~= 0.76, Rand ~=0.43, Silhouette ~= 0.45`) , whilst ABC often explored too much and performed worse. Since the dataset itself is quite noisy a perfect clustering is most likely not possible.
 
-> **Note:** Since the dimensions are ranked from most to least important, visualizations can be made using the first 2 Dimensions.
+> **Note:** Since the dimensions are ranked from most to least important, visualizations can be made using the first 2 dimensions.
 
 ## Clustering Methods
 
