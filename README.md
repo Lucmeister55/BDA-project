@@ -22,10 +22,13 @@ The iris dataset consists of 150 samples from three species of the Iris flower (
 
 ### Speeches Clustering Dataset
 
-A textual dataset of speeches represented as TF-IDF vectors, aiming to group by speaker or topic.
+A textual dataset of speeches represented as frequencies of 3-, 4-grams transformed by Discriminant Correspondence Analysis
 
-- **Ground truth:**
-- **Parameter tuning:**
+- **Ground truth:** Grouped into 4 different categories:
+ * **NAT_Dut** (Native Dutch speeches from the Belgian National Parliament)
+ * **MEP_Dut** (Native Dutch speeches from the European Parliament)
+ * **Fra_Dut** (Translated French speeches from the European Parliament)
+ * **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
 
 ## Clustering Methods
 
