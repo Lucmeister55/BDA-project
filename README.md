@@ -25,10 +25,13 @@ The iris dataset consists of 150 samples from three species of the Iris flower (
 A textual dataset of speeches represented as frequencies of 3-, 4-grams transformed by Discriminant Correspondence Analysis
 
 - **Ground truth:** Grouped into 4 different categories:
- * **NAT_Dut** (Native Dutch speeches from the Belgian National Parliament)
- * **MEP_Dut** (Native Dutch speeches from the European Parliament)
- * **Fra_Dut** (Translated French speeches from the European Parliament)
- * **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
+ 1. **NAT_Dut** (Native Dutch speeches from the Belgian National Parliament)
+ 2. **MEP_Dut** (Native Dutch speeches from the European Parliament)
+ 3. **Fra_Dut** (Translated French speeches from the European Parliament)
+ 4. **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
+
+- **Parameter tuning:** Manually adjusted but the default values were often fine.
+- **Note:** Part of the research on this dataset is to see whether these groups can be differentiated.
 
 ## Clustering Methods
 
