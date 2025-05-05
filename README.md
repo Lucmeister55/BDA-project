@@ -6,7 +6,7 @@ This repository provides a benchmarking framework for three Swarm Intelligence (
 
 ## Datasets
 
-### PBMC 10k (`notebooks\pbmc10k.ipynb`)
+### PBMC 10k (`notebooks\pbmc10k_clust.ipynb`)
 
 [A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cells (PBMC)](https://www.10xgenomics.com/datasets/10-k-peripheral-blood-mononuclear-cells-pbm-cs-from-a-healthy-donor-single-indexed-3-1-standard-4-0-0). 
 
@@ -26,23 +26,23 @@ For this specific dataset, high-dimensional mRNA expression count profiles from 
 
 > **Note:** 2D input enables animated visualization of search dynamics (`record_history` flag).
 
-### Iris Dataset
+### Iris Dataset (`notebooks\iris_clust.ipynb`)
 
 The iris dataset consists of 150 samples from three species of the Iris flower (Iris setosa, Iris versicolor, and Iris virginica), with four features measured for each sample: sepal length, sepal width, petal length, and petal width, all in centimeters. Evaluation (accuracy, adjusted rand score and silhouette score) of clustering results after applying PSO, ABC and ACOR were compared with the results after K-Means++ clustering. The swarm intelligence algorithms had slightly better results, making them suitable for finetuning.
 
 - **Ground truth:** Labels for each flower species are available.
 - **Parameter tuning:** The default values were often fine.
 
-### Speeches Clustering Dataset
+### Speeches Clustering Dataset (`notebooks\speeches_clust.ipynb`)
 
 A textual dataset of speeches represented as frequencies of 181 different 3/4-grams transformed by Discriminant Correspondence Analysis
 
 - **Ground truth:** Grouped into 4 different categories:
 
-1.  **NAT_Dut** (Native Dutch speeches from the Belgian National Parliament)
-2.  **MEP_Dut** (Native Dutch speeches from the European Parliament)
-3.  **Fra_Dut** (Translated French speeches from the European Parliament)
-4.  **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
+  1.  **NAT_Dut** (Native Dutch speeches from the Belgian National Parliament)
+  2.  **MEP_Dut** (Native Dutch speeches from the European Parliament)
+  3.  **Fra_Dut** (Translated French speeches from the European Parliament)
+  4.  **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
 
 - **Parameter tuning:** Manually adjusted but the default values were often fine.
 - **Note:** Part of the research on this dataset is to see whether these groups can be differentiated so accuracy score do not make sense in this context.
