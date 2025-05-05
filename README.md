@@ -16,19 +16,21 @@ A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cell
 
 ### Iris Dataset
 
-The iris dataset consists of 150 samples from three species of the Iris flower (Iris setosa, Iris versicolor, and Iris virginica), with four features measured for each sample: sepal length, sepal width, petal length, and petal width, all in centimeters.
+The iris dataset consists of 150 samples from three species of the Iris flower (Iris setosa, Iris versicolor, and Iris virginica), with four features measured for each sample: sepal length, sepal width, petal length, and petal width, all in centimeters. Evaluation (accuracy, adjusted rand score and silhouette score) of clustering results after applying PSO, ABC and ACOR were compared with the results after K-Means++ clustering. The swarm intelligence algorithms had slightly better results, making them suitable for finetuning.
 
-- **Ground truth:** Labels are available.
+- **Ground truth:** Labels for each flower species are available.
+- **Parameter tuning:** The default values were often fine.
 
 ### Speeches Clustering Dataset
 
 A textual dataset of speeches represented as frequencies of 181 different 3/4-grams transformed by Discriminant Correspondence Analysis
 
 - **Ground truth:** Grouped into 4 different categories:
- 1. **NAT_Dut** (Native Dutch speeches from the Belgian National Parliament)
- 2. **MEP_Dut** (Native Dutch speeches from the European Parliament)
- 3. **Fra_Dut** (Translated French speeches from the European Parliament)
- 4. **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
+
+1.  **NAT_Dut** (Native Dutch speeches from the Belgian National Parliament)
+2.  **MEP_Dut** (Native Dutch speeches from the European Parliament)
+3.  **Fra_Dut** (Translated French speeches from the European Parliament)
+4.  **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
 
 - **Parameter tuning:** Manually adjusted but the default values were often fine.
 - **Note:** Part of the research on this dataset is to see whether these groups can be differentiated so accuracy score do not make sense in this context.
