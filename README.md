@@ -22,7 +22,7 @@ The iris dataset consists of 150 samples from three species of the Iris flower (
 
 ### Speeches Clustering Dataset
 
-A textual dataset of speeches represented as frequencies of 3-, 4-grams transformed by Discriminant Correspondence Analysis
+A textual dataset of speeches represented as frequencies of 181 different 3/4-grams transformed by Discriminant Correspondence Analysis
 
 - **Ground truth:** Grouped into 4 different categories:
  1. **NAT_Dut** (Native Dutch speeches from the Belgian National Parliament)
