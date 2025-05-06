@@ -63,6 +63,8 @@ $$
 J(\{\boldsymbol{\mu}_j\}) = \sum_{i=1}^n \min_{1 \le j \le k} \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2.
 $$
 
+![KMeans objective](https://latex.codecogs.com/svg.image?J(\{\mu_j\})=\sum_{i=1}^n\min_{1\le j\le k}\|x_i-\mu_j\|^2)
+
 **Steps:**
 
 1. **Assignment:**
