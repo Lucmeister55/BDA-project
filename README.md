@@ -59,11 +59,7 @@ A textual dataset of speeches represented as frequencies of 181 different 3/4-gr
 
 **Objective:** Find $k$ centroids $\{\boldsymbol{\mu}_1, \dots, \boldsymbol{\mu}_k\}$ that minimize the within-cluster sum of squares:
 
-$$
-J(\{\boldsymbol{\mu}_j\}) = \sum_{i=1}^n \min_{1 \le j \le k} \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2.
-$$
-
-![KMeans objective](https://latex.codecogs.com/svg.image?J(\{\mu_j\})=\sum_{i=1}^n\min_{1\le j\le k}\|x_i-\mu_j\|^2)
+$$ J(\{\boldsymbol{\mu}_j\}) = \sum_{i=1}^n \min_{1 \le j \le k} \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2. $$
 
 **Steps:**
 
