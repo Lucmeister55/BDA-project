@@ -2,11 +2,11 @@
 
 This repository provides a benchmarking framework for three Swarm Intelligence (SI) clustering algorithms—Particle Swarm Optimization (PSO), Artificial Bee Colony (ABC), and Ant Colony Optimization for Real-valued problems (ACOR)—alongside a baseline K-Means implementation.
 
-![Alt Text](results\pbmc10k\pso\pso_animation_center0.gif)
+![Alt Text](results/pbmc10k/pso/pso_animation_center0.gif)
 
 ## Datasets
 
-### PBMC 10k (`notebooks\pbmc10k_clust.ipynb`)
+### PBMC 10k (`notebooks/pbmc10k_clust.ipynb`)
 
 [A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cells (PBMC)](https://www.10xgenomics.com/datasets/10-k-peripheral-blood-mononuclear-cells-pbm-cs-from-a-healthy-donor-single-indexed-3-1-standard-4-0-0).
 
@@ -16,7 +16,7 @@ For this specific dataset, high-dimensional mRNA expression count profiles from 
 
 - **Parameter tuning:** Algorithm hyperparameters were tuned via grid search (and for swarm‑based methods further refined via Bayesian optimization), using negative silhouette score as objective to minimize.
 
-- **Results (`results\pbmc10k\...`):**
+- **Results (`results/pbmc10k/...`):**
 
   - Animations (`*.gif`)
   - Best parameters (`*.json`)
@@ -26,7 +26,7 @@ For this specific dataset, high-dimensional mRNA expression count profiles from 
 
 > **Note:** 2D input enables animated visualization of search dynamics (`record_history` flag).
 
-### Iris Dataset (`notebooks\iris_clust.ipynb`)
+### Iris Dataset (`notebooks/iris_clust.ipynb`)
 
 The iris dataset consists of 150 samples from three species of the Iris flower (Iris setosa, Iris versicolor, and Iris virginica), with four features measured for each sample: sepal length, sepal width, petal length, and petal width, all in centimeters.
 
@@ -34,7 +34,7 @@ The iris dataset consists of 150 samples from three species of the Iris flower (
 - **Parameter tuning:** The default values were often fine.
 - **Discussion:** Evaluation (accuracy, adjusted rand score and silhouette score) of clustering results after applying PSO, ABC and ACOR were compared with the results after K-Means++ clustering. The swarm intelligence algorithms had slightly better results, making them suitable for finetuning.
 
-### Speeches Clustering Dataset (`notebooks\speeches_clust.ipynb`)
+### Speeches Clustering Dataset (`notebooks/speeches_clust.ipynb`)
 
 A textual dataset of speeches represented as frequencies of 181 different 3/4-grams transformed by Discriminant Correspondence Analysis. The transformed dataset results in each speech having 4 dimensions ranked from most to least important.
 
@@ -52,8 +52,8 @@ A textual dataset of speeches represented as frequencies of 181 different 3/4-gr
 
 ## Clustering Methods
 
-- **Function source code:** `notebooks\src\SI.py`
-- **(More) algorithm details:** `notebooks\src\algorithms.md`
+- **Function source code:** `notebooks/src/SI.py`
+- **(More) algorithm details:** `notebooks/src/algorithms.md`
 
 ### 1. K-Means (Baseline)
 
