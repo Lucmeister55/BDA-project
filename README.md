@@ -8,7 +8,7 @@ This repository provides a benchmarking framework for three Swarm Intelligence (
 
 ### PBMC 10k (`notebooks\pbmc10k_clust.ipynb`)
 
-[A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cells (PBMC)](https://www.10xgenomics.com/datasets/10-k-peripheral-blood-mononuclear-cells-pbm-cs-from-a-healthy-donor-single-indexed-3-1-standard-4-0-0). 
+[A single-cell RNA sequencing dataset of 10,000 peripheral blood mononuclear cells (PBMC)](https://www.10xgenomics.com/datasets/10-k-peripheral-blood-mononuclear-cells-pbm-cs-from-a-healthy-donor-single-indexed-3-1-standard-4-0-0).
 
 For this specific dataset, high-dimensional mRNA expression count profiles from these cells were preprocessed and reduced via PCA, upon which only the first 2 principal components were clustered. Thus, this notebook primarily serves to illustrate the visual aspects of swarm clustering, and does not emphasize relative rankings (see other datasets for more representative benchmarking settings).
 
@@ -16,7 +16,7 @@ For this specific dataset, high-dimensional mRNA expression count profiles from 
 
 - **Parameter tuning:** Algorithm hyperparameters were tuned via grid search (and for swarm‑based methods further refined via Bayesian optimization), using negative silhouette score as objective to minimize.
 
-- **Results (`results\pbmc10k\...`):** 
+- **Results (`results\pbmc10k\...`):**
 
   - Animations (`*.gif`)
   - Best parameters (`*.json`)
@@ -28,10 +28,11 @@ For this specific dataset, high-dimensional mRNA expression count profiles from 
 
 ### Iris Dataset (`notebooks\iris_clust.ipynb`)
 
-The iris dataset consists of 150 samples from three species of the Iris flower (Iris setosa, Iris versicolor, and Iris virginica), with four features measured for each sample: sepal length, sepal width, petal length, and petal width, all in centimeters. Evaluation (accuracy, adjusted rand score and silhouette score) of clustering results after applying PSO, ABC and ACOR were compared with the results after K-Means++ clustering. The swarm intelligence algorithms had slightly better results, making them suitable for finetuning.
+The iris dataset consists of 150 samples from three species of the Iris flower (Iris setosa, Iris versicolor, and Iris virginica), with four features measured for each sample: sepal length, sepal width, petal length, and petal width, all in centimeters.
 
 - **Ground truth:** Labels for each flower species are available.
 - **Parameter tuning:** The default values were often fine.
+- **Discussion:** Evaluation (accuracy, adjusted rand score and silhouette score) of clustering results after applying PSO, ABC and ACOR were compared with the results after K-Means++ clustering. The swarm intelligence algorithms had slightly better results, making them suitable for finetuning.
 
 ### Speeches Clustering Dataset (`notebooks\speeches_clust.ipynb`)
 
@@ -45,7 +46,7 @@ A textual dataset of speeches represented as frequencies of 181 different 3/4-gr
   4.  **Eng_Dut** (Translated Egnlish speeches from the European Parliament)
 
 - **Parameter tuning:** Manually adjusted but the default values were often fine.
-- **Discussion:**  KMeans, PSO and ACOR performed similarly (`Accuracy ~= 0.76, Rand ~=0.43, Silhouette ~= 0.45`) , whilst ABC often explored too much and performed worse. Since the dataset itself is quite noisy a perfect clustering is most likely not possible.
+- **Discussion:** KMeans, PSO and ACOR performed similarly (`Accuracy ~= 0.76, Rand ~=0.43, Silhouette ~= 0.45`) , whilst ABC often explored too much and performed worse. Since the dataset itself is quite noisy a perfect clustering is most likely not possible.
 
 > **Note:** Since the dimensions are ranked from most to least important, visualizations can be made using the first 2 dimensions.
 
