@@ -57,7 +57,7 @@ A textual dataset of speeches represented as frequencies of 181 different 3/4-gr
 
 ### 1. K-Means (Baseline)
 
-**Objective:** Find $k$ centroids $\{\boldsymbol{\mu}_1, \dots, \boldsymbol{\mu}_k\}$ that minimize the within-cluster sum of squares:
+**Objective:** Find $k$ centroids $(\mu_1, \dots, \mu_k)$ that minimize the within-cluster sum of squares:
 
 ```math
 J(\{\boldsymbol{\mu}_j\}) = \sum_{i=1}^n \min_{1 \le j \le k} \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2
@@ -66,20 +66,20 @@ J(\{\boldsymbol{\mu}_j\}) = \sum_{i=1}^n \min_{1 \le j \le k} \|\mathbf{x}_i - \
 **Steps:**
 
 1. **Assignment:**
-  
-  ```math
-  z_i = \underset{1 \le j \le k}{\arg\min}\; \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2
-  ```
+
+```math
+z_i = \underset{1 \le j \le k}{\arg\min}\; \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2
+```
 
 2. **Update:**
-  
-  ```math
-  \boldsymbol{\mu}_j = \frac{1}{|C_j|} \sum_{i : z_i = j} \mathbf{x}_i
-  ```
 
-  ```math
-  \text{where} \ C_j = \{i : z_i = j\}
-  ```
+```math
+\boldsymbol{\mu}_j = \frac{1}{|C_j|} \sum_{i : z_i = j} \mathbf{x}_i
+```
+
+```math
+\text{where} \ C_j = \{i : z_i = j\}
+```
 
 **Code reference:** Uses `sklearn.cluster.KMeans`:
 
@@ -100,8 +100,13 @@ centers = km.cluster_centers_
 
 ```math
 \begin{aligned}
-v_{t+1} &= w\,v_t + c_1\,r_1\,(\mathrm{pbest}_i - x_t^i) + c_2\,r_2\,(\mathrm{gbest} - x_t^i),\\
-x_{t+1}^i &= x_t^i + v_{t+1},
+v_{t+1} &= w\,v_t + c_1\,r_1\,(\mathrm{pbest}_i - x_t^i) + c_2\,r_2\,(\mathrm{gbest} - x_t^i)
+\end{aligned}
+```
+
+```math
+\begin{aligned}
+x_{t+1}^i &= x_t^i + v_{t+1}
 \end{aligned}
 ```
 
@@ -139,9 +144,11 @@ then reshape `best_pos` → `(k, d)` and assign labels by nearest center.
 **Metaphor:** A colony of bees explores solution “food sources” (candidate centers) through three phases:
 
 1. **Employed bees:** For each source $x_i$, pick another $x_k$ and perturb:
-  ```math
-  x'_{ij} = x_{ij} + \phi_{ij}(x_{ij} - x_{kj}),\quad \phi_{ij} \sim \mathcal{U}(-1,1)
-  ```
+
+```math
+x'_{ij} = x_{ij} + \phi_{ij}(x_{ij} - x_{kj}),\quad \phi_{ij} \sim \mathcal{U}(-1,1)
+```
+
 2. **Onlooker bees:** Choose sources with probability $p_i \propto 1/(f_i+\epsilon)$, and apply the same update.
 3. **Scout bees:** Replace any source that hasn’t improved in `limit` trials with a new random point in bounds.
 
@@ -156,23 +163,23 @@ then reshape `best_pos` → `(k, d)` and assign labels by nearest center.
 1. **Rank** archive by fitness.
 2. Compute sampling weights:
 
-  ```math
-  w_i = \frac{1}{qN\sqrt{2\pi}}\exp\Bigl(-\frac{i^2}{2(qN)^2}\Bigr),\quad i = 0,\dots,N-1,
-  ```
+```math
+w_i = \frac{1}{qN\sqrt{2\pi}}\exp\Bigl(-\frac{i^2}{2(qN)^2}\Bigr),\quad i = 0,\dots,N-1
+```
 
-  ```math
-  \text{then normalize so} \sum_i w_i = 1.
-  ```
+```math
+\text{then normalize so} \sum_i w_i = 1.
+```
 
 3. For each of `ants` new solutions:
    - Sample index $i$ with probability $w_i$.
    - Draw a new solution from $\mathcal{N}(\mu=\mathrm{archive}[i], \sigma_i^2)$, with
 
-    ```math
-    \sigma_i = \xi \times \mathrm{std}(\mathrm{archive} - \mathrm{archive}[i]).
-    ```
+```math
+\sigma_i = \xi \times \mathrm{std}(\mathrm{archive} - \mathrm{archive}[i])
+```
 
-4. Merge new solutions into the archive, keep top $N$.
+5. Merge new solutions into the archive, keep top $N$.
 
 **Implementation:** in `run_acor`, with parameters `q`, `xi`, `archive_size`, and `ants`. Records `archive_history` when `record_history=True`.
 
@@ -184,27 +191,33 @@ then reshape `best_pos` → `(k, d)` and assign labels by nearest center.
 
 - **Silhouette Coefficient** $s(i) \in [-1, 1]$:
 
-  ```math
-  s(i) = \frac{b(i) - a(i)}{\max\{a(i), b(i)\}},
-  ```
+```math
+s(i) = \frac{b(i) - a(i)}{\max\{a(i), b(i)\}},
+```
 
-  where $a(i)$ = mean intra-cluster distance, $b(i)$ = mean nearest-cluster distance.
+```math
+\text{where} \ a(i) = \text{mean intra-cluster distance,} \ b(i) = \text{mean nearest-cluster distance}
+```
 
 - **Davies–Bouldin Index (DB)** (lower is better):
 
-  ```math
-  \mathrm{DB} = \frac{1}{k}\sum_{i=1}^k \max_{j \neq i} \frac{S_i + S_j}{\|\mu_i - \mu_j\|},
-  ```
+```math
+\mathrm{DB} = \frac{1}{k}\sum_{i=1}^k \max_{j \neq i} \frac{S_i + S_j}{\|\mu_i - \mu_j\|}
+```
 
-  with $S_i$ = average distance of points in cluster $i$ to $\mu_i$.
+```math
+\text{with} \ S_i = \text{average distance of points in cluster} \ i \ \text{to} \ \mu_i
+```
 
 - **Calinski–Harabasz Index (CH)** (higher is better):
 
-  ```math
-  \mathrm{CH} = \frac{\mathrm{tr}(B)/(k-1)}{\mathrm{tr}(W)/(n-k)},
-  ```
+```math
+\mathrm{CH} = \frac{\mathrm{tr}(B)/(k-1)}{\mathrm{tr}(W)/(n-k)}
+```
 
-  where $B$ = between-cluster dispersion, $W$ = within-cluster dispersion.
+```math
+\text{where} \ B = \text{between-cluster dispersion}, W = \text{within-cluster dispersion}
+```
 
 Computed by `calculate_clustering_scores(data, labels)`.
 
