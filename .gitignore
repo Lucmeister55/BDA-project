@@ -4,3 +4,4 @@ __pycache__
 /notebooks/data/pbmc10k/raw_feature_bc_matrix
 /notebooks/cache
 /recordings
+/flipped_classroom
