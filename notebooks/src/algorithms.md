@@ -170,7 +170,7 @@ For each iteration from `t = 1` to `iters`, perform the following phases:
      $$
      where `f_i` is the fitness of food source `i` and `ε` is a small constant to avoid division by zero.
      
-     Food sources will later be selected by onlooker bees, with probability of being picked proportional to 1/fitness, making better sources more likely to be picked.
+     Food sources will later be selected by onlooker bees, with probability of being picked proportional to fitness, making better sources more likely to be picked.
    - For each food source chosen by an onlooker bee, perform the same steps as in employment phase:
      - Select a food source `i` with probability `p_i`.
      - Select a randomly chosen peer food source `j ≠ i`.
