@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "Flipped classroom notes"
             }
+          },
+          {
+            "id": "8614ef266248c635",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.8.10"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.8.10"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -168,7 +181,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "c86c85e6fe0ab158",
+  "active": "8614ef266248c635",
   "lastOpenFiles": [
     "flipped_classroom/Flipped classroom notes.md",
     "flipped_classroom/our_answers.txt",
